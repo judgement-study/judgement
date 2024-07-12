@@ -3,11 +3,14 @@ import requests
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse
 import numpy as np
+import json
+from fastapi.responses import JSONResponse
 
-class MetaDataRequest(BaseModel):
+class probRequest(BaseModel):
     problemNumber: int
-    
+
 router = APIRouter()
 
 def convert_int64(value: int) -> int:
@@ -21,18 +24,17 @@ def convert_int64(value: int) -> int:
     if isinstance(value, np.int64): return int(value)
     raise TypeError
 
-@router.get("/prob_generate")
-async def prob_generate(request: MetaDataRequest):
-    prob_num: int = problemNumber.url
+@router.post("/prob_generate")
+async def prob_generate(request: probRequest):
+    prob_num: int = request.problemNumber
     prob_url: str = f"https://www.acmicpc.net/problem/{prob_num}"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"
     }
     
-    response = requests.get(url, headers=headers)
+    response = requests.get(prob_url, headers=headers)
     if response.status_code != 200:
-        print(f"Failed to fetch problem details: {response.status_code}")
-        return
+        return JSONResponse({"error": f"Failed to fetch problem details: {response.status_code}"}, status_code=response.status_code)
     
     soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -55,19 +57,27 @@ async def prob_generate(request: MetaDataRequest):
     # 추가 정보
     info_table = soup.find('table', {'id': 'problem-info'})
     info_labels = ["time_limit", "memory_limit", "submissions", "correct", "user_correct", "accuracy"]
-    info = {label: info_table.find_all('td')[i].text.strip() for i, label in enumerate(info_labels)}
+    info = {}
+
+    if info_table:
+        info_values = info_table.find_all('td')
+        for i, label in enumerate(info_labels):
+            if i < len(info_values):
+                info[label] = info_values[i].text.strip()
+            else:
+                info[label] = "N/A"
 
     json_data = {
         "title": title,
-        "time_limit" : info[info_labels.index("time_limit")],
-        "memory_limit" : info[info_labels.index("memory_limit")],
-        "accuracy" : info[info_labels.index("accuracy")],
-        "prob_descipt" : problem_description,
-        "input_descript" : problem_input,
-        "output_descript" : problem_output,
-        "sample_inputs" : sample_inputs,
-        "sample_outputs" : sample_outputs
+        "time_limit": info.get("time_limit", "N/A"),
+        "memory_limit": info.get("memory_limit", "N/A"),
+        "accuracy": info.get("accuracy", "N/A"),
+        "prob_description": problem_description,
+        "input_description": problem_input,
+        "output_description": problem_output,
+        "sample_inputs": sample_inputs,
+        "sample_outputs": sample_outputs
     }
 
     converted_json_data = json.loads(json.dumps(json_data, default=convert_int64))
-    return JSONResponse({"data":converted_json_data, "status": 200})
+    return JSONResponse({"data": converted_json_data, "status": 200})

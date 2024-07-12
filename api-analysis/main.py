@@ -3,7 +3,8 @@ from fastapi import FastAPI
 import subprocess
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import best_user_info
+from routers.root import router as root_router
+from routers.prob_generate import router as generate_router
 
 from config.settings import IP_NUM, PORT_NUM
 
@@ -18,7 +19,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(best_user_info.router)
+app.include_router(root_router)
+app.include_router(generate_router)
 
 if __name__ == '__main__':
     command = f"uvicorn main:app --host {IP_NUM} --port {PORT_NUM} --workers 1"
