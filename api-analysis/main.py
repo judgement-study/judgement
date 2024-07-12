@@ -1,0 +1,25 @@
+import uvicorn
+from fastapi import FastAPI
+import subprocess
+from fastapi.middleware.cors import CORSMiddleware
+
+from routers import best_user_info
+
+from config.settings import IP_NUM, PORT_NUM
+
+
+app = FastAPI()
+# CORS 설정 추가
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(best_user_info.router)
+
+if __name__ == '__main__':
+    command = f"uvicorn main:app --host {IP_NUM} --port {PORT_NUM} --workers 1"
+    subprocess.run(command, shell=True)
