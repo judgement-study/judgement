@@ -19,7 +19,7 @@ root
 ├── frontend
 ├── analysis_server
 └── README.md
-
+```markdown
 ## 🚀 시작하기
 
 ### 필수 조건
