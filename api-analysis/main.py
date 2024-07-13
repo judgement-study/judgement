@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers.root import router as root_router
 from routers.prob_generate import router as generate_router
+from routers.debug_python import router as debug_py_router
 
 from config.settings import IP_NUM, PORT_NUM
 
@@ -21,6 +22,7 @@ app.add_middleware(
 
 app.include_router(root_router)
 app.include_router(generate_router)
+app.include_router(debug_py_router)
 
 if __name__ == '__main__':
     command = f"uvicorn main:app --host {IP_NUM} --port {PORT_NUM} --workers 1"
