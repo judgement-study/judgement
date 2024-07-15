@@ -1,20 +1,26 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-
-const problems = [
-  { id: 1, title: 'A + B', level: 'Easy' },
-  { id: 2, title: 'Binary Search', level: 'Medium' },
-  // 더 많은 문제들 추가
-];
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function ProblemList() {
+  const [problems, setProblems] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/problems')
+      .then(response => {
+        setProblems(response.data);
+      })
+      .catch(error => {
+        console.error("There was an error fetching the problems!", error);
+      });
+  }, []);
+
   return (
     <div>
       <h1>Problems</h1>
       <ul>
         {problems.map(problem => (
-          <li key={problem.id}>
-            <Link to={`/problem/${problem.id}`}>{problem.title} - {problem.level}</Link>
+          <li key={problem._id}>
+            <a href={`/problem/${problem._id}`}>{problem.title} - {problem.level}</a>
           </li>
         ))}
       </ul>
