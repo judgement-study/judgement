@@ -4,28 +4,15 @@ from bs4 import BeautifulSoup
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
-import numpy as np
-import json
-from fastapi.responses import JSONResponse
+from typing import List, Dict, Any
 
 class probRequest(BaseModel):
     problemNumber: int
 
 router = APIRouter()
 
-def convert_int64(value: int) -> int:
-    """
-    numpy int64->int형으로 변경하여 반환
-        Args :
-            a ``numpy int64``
-        Retunrs :
-            int(a) ``int``
-    """
-    if isinstance(value, np.int64): return int(value)
-    raise TypeError
-
 @router.post("/prob_generate")
-async def prob_generate(request: probRequest):
+async def prob_generate(request: probRequest) -> Dict[str, Any]:
     prob_num: int = request.problemNumber
     prob_url: str = f"https://www.acmicpc.net/problem/{prob_num}"
     headers = {
@@ -39,14 +26,14 @@ async def prob_generate(request: probRequest):
     soup = BeautifulSoup(response.text, 'html.parser')
 
     # 제목과 설명
-    title = soup.find('title').text.strip()
-    problem_description = soup.find('div', {'id': 'problem_description'}).text.strip()
-    problem_input = soup.find('div', {'id': 'problem_input'}).text.strip()
-    problem_output = soup.find('div', {'id': 'problem_output'}).text.strip()
+    title: str = soup.find('title').text.strip()
+    problem_description: str = soup.find('div', {'id': 'problem_description'}).text.strip()
+    problem_input: str = soup.find('div', {'id': 'problem_input'}).text.strip()
+    problem_output: str = soup.find('div', {'id': 'problem_output'}).text.strip()
 
     # 입력 및 출력 예시
-    sample_inputs = []
-    sample_outputs = []
+    sample_inputs: List[str] = []
+    sample_outputs: List[str] = []
     example_pairs = soup.find_all('pre', {'class': 'sampledata'})
 
     for i in range(0, len(example_pairs), 2):
@@ -56,8 +43,8 @@ async def prob_generate(request: probRequest):
 
     # 추가 정보
     info_table = soup.find('table', {'id': 'problem-info'})
-    info_labels = ["time_limit", "memory_limit", "submissions", "correct", "user_correct", "accuracy"]
-    info = {}
+    info_labels: List[str] = ["time_limit", "memory_limit", "submissions", "correct", "user_correct", "accuracy"]
+    info: Dict[str, str] = {}
 
     if info_table:
         info_values = info_table.find_all('td')
@@ -67,7 +54,7 @@ async def prob_generate(request: probRequest):
             else:
                 info[label] = "N/A"
 
-    json_data = {
+    json_data: Dict[str, Any] = {
         "title": title,
         "time_limit": info.get("time_limit", "N/A"),
         "memory_limit": info.get("memory_limit", "N/A"),
@@ -79,5 +66,4 @@ async def prob_generate(request: probRequest):
         "sample_outputs": sample_outputs
     }
 
-    converted_json_data = json.loads(json.dumps(json_data, default=convert_int64))
-    return JSONResponse({"data": converted_json_data, "status": 200})
+    return {"status": "success", "output": json_data}
