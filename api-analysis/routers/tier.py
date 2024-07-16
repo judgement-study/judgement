@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException, APIRouter
 from pydantic import BaseModel
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Union
 
 app = FastAPI()
 
 class tierRequest(BaseModel):
-    solvedProblem: str  # bronze2, bronze3, .... 형식
+    solvedProblem: str  # bronze2 bronze3 .... 형식
 
 # 티어 우선순위 설정
 tiers: Dict[str, int] = {
