@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Tuple, Dict, Union
 
@@ -42,6 +42,10 @@ def parse_and_score_tier(tier_str: str) -> int:
             tier_name = tier_str[:i]
             grade_name = tier_str[i:]
             break
+    else:
+        raise HTTPException(status_code=400, detail=f"Invalid tier format: {tier_str}")
+    if tier_name not in prob_tier_scores:
+        raise HTTPException(status_code=400, detail=f"Unknown tier name: {tier_str}")
     max_score, min_score = prob_tier_scores[tier_name]
     tier_rank = grades[grade_name]
     # 등급이 1일 때 max_score, 5일 때 min_score
@@ -65,8 +69,11 @@ def calculate_user_tier(total_score: int) -> str:
         sub_tier_score = (total_score - 5000) / 4850 * 4
     else:
         next_tier_threshold = next((v for k, v in tier_thresholds.items() if v < threshold), 0)
-        sub_tier_score = (total_score - next_tier_threshold) / (threshold - next_tier_threshold) * 4
-
+        if threshold == next_tier_threshold:
+            sub_tier_score = 0
+        else:
+            sub_tier_score = (total_score - next_tier_threshold) / (threshold - next_tier_threshold) * 4
+    
     grade_index = int(sub_tier_score) + 1
     grade_index = min(grade_index, 5)
 

@@ -2,6 +2,6 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
-@router.get("/")
+@router.post("/")
 async def root():
     return "root Router"
