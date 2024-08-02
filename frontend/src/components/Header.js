@@ -27,6 +27,12 @@ function Header() {
           <li className="search">
             <Link to="/search"><FaSearch /></Link>
           </li>
+          <li>
+            <Link to="/signin" className="nav-link">Sign In</Link>
+          </li>
+          <li>
+            <Link to="/signup" className="nav-link">Sign Up</Link>
+          </li>
         </ul>
       </nav>
     </header>
