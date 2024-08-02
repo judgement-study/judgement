@@ -17,7 +17,7 @@
 root
 ├── backend
 ├── frontend
-├── analysis_server
+├── api-analysis
 └── README.md
 
 ```
@@ -48,9 +48,9 @@ root
 
 3. **분석 서버**
     ```bash
-    cd analysis_server
+    cd api-analysis
     pip install -r requirements.txt
-    uvicorn app.main:app --reload
+    python main.py
     ```
 
 ## 📊 데이터 분석
