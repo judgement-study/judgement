@@ -1,4 +1,4 @@
-package com.example.bookservice.exception;
+package com.inu.algomaster.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
