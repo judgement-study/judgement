@@ -13,15 +13,15 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "user_tb")
+@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "uid")
+    @Column(name = "uid") // pk로 지정
     private Long uid;
 
-    @Column(name = "user_id", updatable = false, nullable = false)
+    @Column(name = "user_id", updatable = false, nullable = false, unique = true)
     private String userId;
 
     @Column(nullable = false)
