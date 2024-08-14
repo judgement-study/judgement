@@ -1,9 +1,11 @@
-package com.inu.algomaster.data.dto;
+package com.inu.algomaster.data.dto.user;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class SignInResponseDto {
 
     private String msg;
@@ -11,7 +13,7 @@ public class SignInResponseDto {
     private String token;
 
     @Builder
-    public SignInResponseDto(String msg, boolean succes, String token){
+    public SignInResponseDto(boolean success, String msg, String token){
         this.msg = msg;
         this.success = success;
         this.token = token;
