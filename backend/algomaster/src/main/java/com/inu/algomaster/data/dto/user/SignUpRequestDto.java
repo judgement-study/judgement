@@ -1,5 +1,6 @@
-package com.inu.algomaster.data.dto;
+package com.inu.algomaster.data.dto.user;
 
+import com.inu.algomaster.data.dto.UserRequestDto;
 import com.inu.algomaster.data.entity.User;
 import lombok.Builder;
 
