@@ -1,5 +1,6 @@
 package com.inu.algomaster.service.impl;
 
+import com.inu.algomaster.config.security.JwtProvider;
 import com.inu.algomaster.config.security.TokenGenerator;
 import com.inu.algomaster.data.dto.*;
 import com.inu.algomaster.data.dto.user.SignInRequestDto;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.NoSuchElementException;
 
 import static com.inu.algomaster.exception.ErrorCode.MEMBER_NOT_FOUND;
@@ -24,6 +26,7 @@ import static java.util.regex.Pattern.matches;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
 
 
     @Override
@@ -48,13 +51,14 @@ public class UserServiceImpl implements UserService {
         }
 
         //로그인 성공
-        SignUpResponseDto signUpResponseDto = SignUpResponseDto.builder()
-                .success(true)
-                .msg("로그인 성공")
-                .build();
+        String accessToken = jwtProvider.createAccessToken(user.getUid(), user.getUserId(), user.getRoles());
 
         //response 데이터 생성
-        SignInResponseDto signInResponseDto = new SignInResponseDto(signUpResponseDto.getSuccess(), signUpResponseDto.getMsg(), TokenGenerator.generateToken());
+        SignInResponseDto signInResponseDto = SignInResponseDto.builder()
+                .msg("로그인에 성공하였습니다.")
+                .success(true)
+                .token(accessToken)
+                .build();
 
         return signInResponseDto;
     }
@@ -84,6 +88,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto saveUser(UserRequestDto userRequestDto){
 
         User user = UserRequestDto.convertDtoToEntity(userRequestDto);
+        user.setRoles(Collections.singletonList("ROLE_USER"));
         userRepository.save(user);
 
         UserResponseDto userResponseDto = UserResponseDto.convertEntityToDto(user);
